@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypeClub - Master Touch Typing</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #10b981;
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --error: #ef4444;
+            --highlight: #fbbf24;
+            --finger-active: #3b82f6;
+            --finger-correct: #10b981;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            background: var(--surface);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #334155;
+        }
+
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 0.5rem; }
+        .user-info { display: flex; gap: 1rem; align-items: center; }
+        
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        button:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        button.secondary { background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted); }
+        button.secondary:hover { border-color: var(--text); color: var(--text); background: rgba(255,255,255,0.05); }
+
+        /* Main Layout */
+        main { flex: 1; padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%; display: grid; grid-template-columns: 300px 1fr; gap: 2rem; }
+
+        /* Sidebar */
+        .sidebar { background: var(--surface); padding: 1.5rem; border-radius: 12px; height: fit-content; }
+        .lesson-list { list-style: none; margin-top: 1rem; }
+        .lesson-item {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .lesson-item:hover { background: rgba(255,255,255,0.05); }
+        .lesson-item.active { background: rgba(79, 70, 229, 0.1); border-color: var(--primary); color: var(--primary); }
+        .lesson-item.completed { color: var(--secondary); }
+        .lesson-item.completed::after { content: ' ✓'; float: right; }
+
+        /* Typing Area */
+        .typing-area { display: flex; flex-direction: column; gap: 1.5rem; }
+        
+        /* Finger Animation Guide */
+        .finger-guide-container {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .finger-hint-text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--finger-active);
+            margin-bottom: 1rem;
+            height: 1.5rem;
+            text-align: center;
+        }
+
+        .hands-svg {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+        }
+
+        .finger-path {
+            fill: #334155;
+            stroke: #475569;
+            stroke-width: 2;
+            transition: all 0.2s ease;
+        }
+
+        .finger-path.active {
+            fill: var(--finger-active);
+            stroke: #93c5fd;
+            filter: drop-shadow(0 0 8px var(--finger-active));
+            animation: pulse 1s infinite;
+        }
+
+        .finger-path.correct {
+            fill: var(--finger-correct);
+            stroke: #6ee7b7;
+            animation: flashGreen 0.3s ease-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.02); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+
+        @keyframes flashGreen {
+            0% { fill: var(--finger-correct); }
+            100% { fill: #334155; }
+        }
+
+        /* Text Display */
+        .text-display {
+            background: var(--surface);
+            padding: 2rem;
+            border-radius: 12px;
+            font-size: 1.5rem;
+            line-height: 2;
+            min-height: 150px;
+            position: relative;
+            user-select: none;
+        }
+        
+        .char { border-radius: 2px; transition: background 0.1s; }
+        .char.correct { color: var(--secondary); }
+        .char.incorrect { color: var(--error); text-decoration: underline; background: rgba(239, 68, 68, 0.1); }
+        .char.current { background: var(--text-muted); color: var(--bg); animation: blink 1s infinite; }
+        
+        @keyframes blink { 50% { opacity: 0.7; } }
+
+        /* Virtual Keyboard */
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(15, 1fr);
+            gap: 4px;
+            background: var(--surface);
+            padding: 1rem;
+            border-radius: 12px;
+        }
+        
+        .key {
+            background: #334155;
+            padding: 0.8rem 0.5rem;
+            text-align: center;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.1s;
+            position: relative;
+            border-bottom: 3px solid #1e293b;
+        }
+        
+        .key.active { background: var(--primary); transform: translateY(2px); border-bottom: 0; }
+        .key.correct { background: var(--secondary); }
+        .key.wrong { background: var(--error); }
+        
+        /* Key Colors for Fingers */
+        .key-finger-lp { border-bottom-color: #ef4444; } /* Left Pinky */
+        .key-finger-lr { border-bottom-color: #f97316; } /* Left Ring */
+        .key-finger-lm { border-bottom-color: #eab308; } /* Left Middle */
+        .key-finger-li { border-bottom-color: #22c55e; } /* Left Index */
+        .key-finger-ri { border-bottom-color: #22c55e; } /* Right Index */
+        .key-finger-rm { border-bottom-color: #eab308; } /* Right Middle */
+        .key-finger-rr { border-bottom-color: #f97316; } /* Right Ring */
+        .key-finger-rp { border-bottom-color: #ef4444; } /* Right Pinky */
+        .key-finger-thumb { border-bottom-color: #3b82f6; } /* Thumbs */
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .stat-card {
+            background: var(--surface);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-value { font-size: 1.5rem; font-weight: bold; color: var(--primary); }
+        .stat-label { font-size: 0.875rem; color: var(--text-muted); }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .modal-content {
+            background: var(--surface);
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        .modal h2 { margin-bottom: 1rem; color: var(--primary); }
+        .modal-stats { margin: 1.5rem 0; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .modal-actions { display: flex; gap: 1rem; justify-content: center; }
+
+        @media (max-width: 768px) {
+            main { grid-template-columns: 1fr; }
+            .keyboard { grid-template-columns: repeat(10, 1fr); }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">⌨️ TypeClub</div>
+        <div class="user-info">
+            <span id="usernameDisplay">Guest</span>
+            <button class="secondary" onclick="app.resetProgress()">Reset Progress</button>
+            <button onclick="app.toggleFreePractice()">Free Practice</button>
+        </div>
+    </header>
+
+    <main>
+        <aside class="sidebar">
+            <h3>Lessons</h3>
+            <ul class="lesson-list" id="lessonList">
+                <!-- Lessons injected by JS -->
+            </ul>
+        </aside>
+
+        <section class="typing-area">
+            <!-- Finger Animation Guide -->
+            <div class="finger-guide-container">
+                <div class="finger-hint-text" id="fingerHint">Place your fingers on the home row</div>
+                <svg class="hands-svg" viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Left Hand -->
+                    <g id="left-hand">
+                        <!-- Pinky -->
+                        <path id="finger-l-pinky" class="finger-path" d="M40,150 Q30,100 40,50 L60,50 Q70,100 60,150 Z" />
+                        <!-- Ring -->
+                        <path id="finger-l-ring" class="finger-path" d="M70,150 Q60,90 70,40 L90,40 Q100,90 90,150 Z" />
+                        <!-- Middle -->
+                        <path id="finger-l-middle" class="finger-path" d="M100,150 Q90,80 100,30 L120,30 Q130,80 120,150 Z" />
+                        <!-- Index -->
+                        <path id="finger-l-index" class="finger-path" d="M130,150 Q120,80 130,30 L160,30 Q170,80 160,150 Z" />
+                        <!-- Thumb -->
+                        <path id="finger-l-thumb" class="finger-path" d="M170,160 Q190,140 210,160 L200,190 Q180,200 160,180 Z" />
+                        <!-- Palm/Base -->
+                        <path class="finger-path" d="M40,150 L170,150 L160,220 Q100,240 40,220 Z" style="fill:#1e293b; stroke:none;" />
+                    </g>
+                    
+                    <!-- Right Hand -->
+                    <g id="right-hand">
+                        <!-- Thumb -->
+                        <path id="finger-r-thumb" class="finger-path" d="M390,160 Q370,140 350,160 L360,190 Q380,200 400,180 Z" />
+                        <!-- Index -->
+                        <path id="finger-r-index" class="finger-path" d="M400,150 Q390,80 400,30 L430,30 Q440,80 430,150 Z" />
+                        <!-- Middle -->
+                        <path id="finger-r-middle" class="finger-path" d="M440,150 Q430,80 440,30 L460,30 Q470,80 460,150 Z" />
+                        <!-- Ring -->
+                        <path id="finger-r-ring" class="finger-path" d="M470,150 Q460,90 470,40 L490,40 Q500,90 490,150 Z" />
+                        <!-- Pinky -->
+                        <path id="finger-r-pinky" class="finger-path" d="M500,150 Q490,100 500,50 L520,50 Q530,100 520,150 Z" />
+                        <!-- Palm/Base -->
+                        <path class="finger-path" d="M390,150 L520,150 L520,220 Q460,240 400,220 Z" style="fill:#1e293b; stroke:none;" />
+                    </g>
+                </svg>
+            </div>
+
+            <div class="text-display" id="textDisplay" onclick="document.getElementById('hiddenInput').focus()">
+                <span id="textContent">Select a lesson to begin...</span>
+            </div>
+            
+            <input type="text" id="hiddenInput" style="opacity: 0; position: absolute; pointer-events: none;" autocomplete="off">
+
+            <div class="keyboard" id="keyboard">
+                <!-- Keyboard generated by JS -->
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="wpm">0</div>
+                    <div class="stat-label">WPM</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="accuracy">100%</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="errors">0</div>
+                    <div class="stat-label">Errors</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="progress">0%</div>
+                    <div class="stat-label">Progress</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Results Modal -->
+    <div class="modal" id="resultModal">
+        <div class="modal-content">
+            <h2>Lesson Complete! 🎉</h2>
+            <p>Great job! Here are your results:</p>
+            <div class="modal-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="modalWpm">0</div>
+                    <div class="stat-label">WPM</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="modalAcc">0%</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button onclick="app.nextLesson()">Next Lesson</button>
+                <button class="secondary" onclick="app.closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const lessons = [
+            { id: 1, title: "Home Row (ASDF JKL;)", text: "asdf jkl; fads jkl; asdf jkl; dad sad fall ask lad flask" },
+            { id: 2, title: "Top Row (QWERTY UIOP)", text: "qwer tyui opqw er tyui qop wire root quiet power" },
+            { id: 3, title: "Bottom Row (ZXCV BN M,.)", text: "zxcv bnm, .zxc vbn m, .zip box van man cob" },
+            { id: 4, title: "Combined Rows", text: "The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs." },
+            { id: 5, title: "Common Words", text: "the be to of and a in that have I it for not on with he as you do at this but his by from they we say her she" },
+            { id: 6, title: "Numbers & Symbols", text: "12345 67890 !@#$% ^&*() The year is 2024 and 100% complete." },
+            { id: 7, title: "Capital Letters", text: "London Paris New York Tokyo Berlin Rome Madrid Lisbon Vienna Prague" },
+            { id: 8, title: "Punctuation", text: "Hello, world! How are you? I'm fine; thanks. Wait... really? Yes! No." },
+            { id: 9, title: "Speed Drill", text: "fast cast last mast past rast tast bast vast wast zast xast cast" },
+            { id: 10, title: "Final Test", text: "Programming is the art of telling another human what one wants the computer to do. Success is not final, failure is not fatal: it is the courage to continue that counts." }
+        ];
+
+        // Finger Mapping Configuration
+        const fingerMap = {
+            // Left Pinky
+            'q': 'l-pinky', 'a': 'l-pinky', 'z': 'l-pinky', '1': 'l-pinky', '!': 'l-pinky',
+            // Left Ring
+            'w': 'l-ring', 's': 'l-ring', 'x': 'l-ring', '2': 'l-ring', '@': 'l-ring',
+            // Left Middle
+            'e': 'l-middle', 'd': 'l-middle', 'c': 'l-middle', '3': 'l-middle', '#': 'l-middle',
+            // Left Index
+            'r': 'l-index', 'f': 'l-index', 'v': 'l-index', 't': 'l-index', 'g': 'l-index', 'b': 'l-index',
+            '4': 'l-index', '$': 'l-index', '5': 'l-index', '%': 'l-index',
+            // Right Index
+            'y': 'r-index', 'h': 'r-index', 'n': 'r-index', 'u': 'r-index', 'j': 'r-index', 'm': 'r-index',
+            '6': 'r-index', '^': 'r-index', '7': 'r-index', '&': 'r-index',
+            // Right Middle
+            'i': 'r-middle', 'k': 'r-middle', ',': 'r-middle', '8': 'r-middle', '*': 'r-middle',
+            // Right Ring
+            'o': 'r-ring', 'l': 'r-ring', '.': 'r-ring', '9': 'r-ring', '(': 'r-ring',
+            // Right Pinky
+            'p': 'r-pinky', ';': 'r-pinky', '/': 'r-pinky', '0': 'r-pinky', ')': 'r-pinky',
+            '-': 'r-pinky', '_': 'r-pinky', '=': 'r-pinky', '+': 'r-pinky', '[': 'r-pinky', ']': 'r-pinky',
+            "'": 'r-pinky', '"': 'r-pinky', '\\': 'r-pinky', '|': 'r-pinky',
+            // Thumbs
+            ' ': 'l-thumb' // Using left thumb for space by default, can toggle
+        };
+
+        const fingerNames = {
+            'l-pinky': 'Left Pinky', 'l-ring': 'Left Ring', 'l-middle': 'Left Middle', 'l-index': 'Left Index', 'l-thumb': 'Left Thumb',
+            'r-pinky': 'Right Pinky', 'r-ring': 'Right Ring', 'r-middle': 'Right Middle', 'r-index': 'Right Index', 'r-thumb': 'Right Thumb'
+        };
+
+        class TypingApp {
+            constructor() {
+                this.currentLesson = null;
+                this.currentIndex = 0;
+                this.errors = 0;
+                this.startTime = null;
+                this.isFreePractice = false;
+                this.progress = JSON.parse(localStorage.getItem('typeclub_progress')) || {};
+                
+                this.initKeyboard();
+                this.renderLessons();
+                this.setupEventListeners();
+            }
+
+            initKeyboard() {
+                const layout = [
+                    ['`','1','2','3','4','5','6','7','8','9','0','-','=','Backspace'],
+                    ['Tab','q','w','e','r','t','y','u','i','o','p','[',']','\\'],
+                    ['Caps','a','s','d','f','g','h','j','k','l',';','\'','Enter'],
+                    ['Shift','z','x','c','v','b','n','m',',','.','/','Shift'],
+                    ['Space']
+                ];
+                
+                const kbContainer = document.getElementById('keyboard');
+                kbContainer.innerHTML = '';
+                
+                // Helper to get finger class
+                const getFingerClass = (key) => {
+                    const k = key.toLowerCase();
+                    if (!fingerMap[k]) return '';
+                    const f = fingerMap[k];
+                    if (f.includes('l-pinky') || f.includes('r-pinky')) return 'key-finger-lp'; // Simplified coloring
+                    if (f.includes('l-ring') || f.includes('r-ring')) return 'key-finger-lr';
+                    if (f.includes('l-middle') || f.includes('r-middle')) return 'key-finger-lm';
+                    if (f.includes('l-index') || f.includes('r-index')) return 'key-finger-li';
+                    if (f.includes('thumb')) return 'key-finger-thumb';
+                    return '';
+                };
+
+                layout.forEach(row => {
+                    row.forEach(key => {
+                        const div = document.createElement('div');
+                        div.className = `key ${getFingerClass(key)}`;
+                        div.textContent = key === ' ' ? 'Space' : key;
+                        div.dataset.key = key.toLowerCase();
+                        if (key.length > 1 && key !== 'Space') div.style.fontSize = '0.7rem';
+                        kbContainer.appendChild(div);
+                    });
+                });
+            }
+
+            renderLessons() {
+                const list = document.getElementById('lessonList');
+                list.innerHTML = '';
+                lessons.forEach((lesson, index) => {
+                    const li = document.createElement('li');
+                    li.className = `lesson-item ${this.currentLesson?.id === lesson.id ? 'active' : ''}`;
+                    if (this.progress[lesson.id]) li.classList.add('completed');
+                    li.textContent = `${index + 1}. ${lesson.title}`;
+                    li.onclick = () => this.loadLesson(lesson.id);
+                    list.appendChild(li);
+                });
+            }
+
+            loadLesson(id) {
+                this.currentLesson = lessons.find(l => l.id === id);
+                this.isFreePractice = false;
+                this.startGame(this.currentLesson.text);
+                this.renderLessons();
+            }
+
+            toggleFreePractice() {
+                this.isFreePractice = true;
+                const texts = ["The quick brown fox jumps over the lazy dog.", "Pack my box with five dozen liquor jugs.", "How vexingly quick daft zebras jump!"];
+                const randomText = texts[Math.floor(Math.random() * texts.length)] + " " + texts[Math.floor(Math.random() * texts.length)];
+                this.startGame(randomText);
+                this.renderLessons(); // Deselect lessons
+            }
+
+            startGame(text) {
+                this.currentIndex = 0;
+                this.errors = 0;
+                this.startTime = null;
+                document.getElementById('hiddenInput').value = '';
+                document.getElementById('hiddenInput').focus();
+                
+                const container = document.getElementById('textContent');
+                container.innerHTML = '';
+                text.split('').forEach((char, i) => {
+                    const span = document.createElement('span');
+                    span.textContent = char;
+                    span.className = 'char';
+                    if (i === 0) span.classList.add('current');
+                    container.appendChild(span);
+                });
+
+                this.updateStats();
+                this.highlightNextFinger();
+            }
+
+            highlightNextFinger() {
+                // Reset all fingers
+                document.querySelectorAll('.finger-path').forEach(el => {
+                    el.classList.remove('active');
+                    setTimeout(() => el.classList.remove('correct'), 300);
+                });
+
+                if (!this.currentLesson && !this.isFreePractice) return;
+                
+                const text = this.isFreePractice ? document.getElementById('textContent').textContent : this.currentLesson.text;
+                if (this.currentIndex >= text.length) return;
+
+                const nextChar = text[this.currentIndex].toLowerCase();
+                const fingerId = fingerMap[nextChar] || 'l-thumb';
+                
+                // Highlight SVG
+                const svgPath = document.getElementById(`finger-${fingerId}`);
+                if (svgPath) svgPath.classList.add('active');
+
+                // Update Text Hint
+                const hintEl = document.getElementById('fingerHint');
+                hintEl.textContent = `Use ${fingerNames[fingerId] || 'Finger'}`;
+                hintEl.style.color = 'var(--finger-active)';
+
+                // Highlight Keyboard Key
+                document.querySelectorAll('.key').forEach(k => k.classList.remove('active'));
+                const keyEl = document.querySelector(`.key[data-key="${nextChar}"]`);
+                if (keyEl) keyEl.classList.add('active');
+            }
+
+            flashFingerCorrect(fingerId) {
+                const svgPath = document.getElementById(`finger-${fingerId}`);
+                if (svgPath) {
+                    svgPath.classList.remove('active');
+                    void svgPath.offsetWidth;
+                    svgPath.classList.add('correct');
+                }
+            }
+
+            setupEventListeners() {
+                const input = document.getElementById('hiddenInput');
+                
+                input.addEventListener('input', (e) => {
+                    if (!this.currentLesson && !this.isFreePractice) return;
+                    
+                    const text = this.isFreePractice ? document.getElementById('textContent').textContent : this.currentLesson.text;
+                    const char = e.data;
+                    
+                    if (!char) return;
+
+                    if (!this.startTime) this.startTime = new Date();
+
+                    const targetChar = text[this.currentIndex];
+                    const chars = document.querySelectorAll('.char');
+                    
+                    const fingerId = fingerMap[targetChar.toLowerCase()] || 'l-thumb';
+
+                    if (char === targetChar) {
+                        chars[this.currentIndex].classList.remove('current');
+                        chars[this.currentIndex].classList.add('correct');
+                        this.flashFingerCorrect(fingerId);
+                        this.currentIndex++;
+                        
+                        if (this.currentIndex < text.length) {
+                            chars[this.currentIndex].classList.add('current');
+                            this.highlightNextFinger();
+                        } else {
+                            this.finishLesson();
+                        }
+                    } else {
+                        this.errors++;
+                        chars[this.currentIndex].classList.add('incorrect');
+                    }
+                    
+                    input.value = '';
+                    this.updateStats();
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (e.target.closest('.typing-area')) {
+                        input.focus();
+                    }
+                });
+            }
+
+            updateStats() {
+                const text = this.isFreePractice ? document.getElementById('textContent').textContent : this.currentLesson.text;
+                const timeElapsed = this.startTime ? (new Date() - this.startTime) / 60000 : 0;
+                const wpm = Math.round((this.currentIndex / 5) / (timeElapsed || 0.001));
+                const accuracy = Math.round(((this.currentIndex) / (this.currentIndex + this.errors)) * 100) || 100;
+                const progress = Math.round((this.currentIndex / text.length) * 100);
+
+                document.getElementById('wpm').textContent = wpm;
+                document.getElementById('accuracy').textContent = `${accuracy}%`;
+                document.getElementById('errors').textContent = this.errors;
+                document.getElementById('progress').textContent = `${progress}%`;
+            }
+
+            finishLesson() {
+                const text = this.isFreePractice ? document.getElementById('textContent').textContent : this.currentLesson.text;
+                const timeElapsed = (new Date() - this.startTime) / 60000;
+                const wpm = Math.round((this.currentIndex / 5) / timeElapsed);
+                const accuracy = Math.round((this.currentIndex) / (this.currentIndex + this.errors) * 100);
+
+                if (!this.isFreePractice) {
+                    this.progress[this.currentLesson.id] = { wpm, accuracy, date: new Date() };
+                    localStorage.setItem('typeclub_progress', JSON.stringify(this.progress));
+                }
+
+                document.getElementById('modalWpm').textContent = wpm;
+                document.getElementById('modalAcc').textContent = `${accuracy}%`;
+                document.getElementById('resultModal').style.display = 'flex';
+            }
+
+            nextLesson() {
+                if (this.currentLesson && this.currentLesson.id < lessons.length) {
+                    this.loadLesson(this.currentLesson.id + 1);
+                    this.closeModal();
+                } else {
+                    this.closeModal();
+                }
+            }
+
+            closeModal() {
+                document.getElementById('resultModal').style.display = 'none';
+                if (!this.isFreePractice) this.renderLessons();
+            }
+
+            resetProgress() {
+                if(confirm('Are you sure you want to reset all progress?')) {
+                    localStorage.removeItem('typeclub_progress');
+                    this.progress = {};
+                    this.renderLessons();
+                }
+            }
+        }
+
+        const app = new TypingApp();
+    </script>
+</body>
+</html>

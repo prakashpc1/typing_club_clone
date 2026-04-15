@@ -262,6 +262,119 @@
             width: 80px;
         }
 
+        /* Finger Animation Styles */
+        .finger-guide {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        .hand-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hand-label {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--text-light);
+        }
+
+        .hand-svg {
+            width: 200px;
+            height: 220px;
+        }
+
+        .finger {
+            fill: var(--key-bg);
+            transition: all 0.2s ease;
+        }
+
+        .finger.active {
+            fill: var(--key-active);
+            filter: drop-shadow(0 0 10px var(--key-active));
+            transform: scale(1.05);
+            transform-origin: center;
+        }
+
+        .finger.pinky { }
+        .finger.ring { }
+        .finger.middle { }
+        .finger.index { }
+        .finger.thumb { }
+
+        .finger-left-pinky.active { fill: #ef4444; filter: drop-shadow(0 0 15px #ef4444); }
+        .finger-left-ring.active { fill: #f97316; filter: drop-shadow(0 0 15px #f97316); }
+        .finger-left-middle.active { fill: #eab308; filter: drop-shadow(0 0 15px #eab308); }
+        .finger-left-index.active { fill: #10b981; filter: drop-shadow(0 0 15px #10b981); }
+        .finger-left-thumb.active { fill: #06b6d4; filter: drop-shadow(0 0 15px #06b6d4); }
+
+        .finger-right-index.active { fill: #10b981; filter: drop-shadow(0 0 15px #10b981); }
+        .finger-right-middle.active { fill: #eab308; filter: drop-shadow(0 0 15px #eab308); }
+        .finger-right-ring.active { fill: #f97316; filter: drop-shadow(0 0 15px #f97316); }
+        .finger-right-pinky.active { fill: #ef4444; filter: drop-shadow(0 0 15px #ef4444); }
+        .finger-right-thumb.active { fill: #06b6d4; filter: drop-shadow(0 0 15px #06b6d4); }
+
+        .finger-hint {
+            text-align: center;
+            padding: 15px;
+            background: rgba(79, 70, 229, 0.2);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            color: var(--text-light);
+        }
+
+        .finger-hint span {
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        /* Color-coded key hints */
+        .key[data-finger="pinky-left"] { border-bottom: 3px solid #ef4444; }
+        .key[data-finger="ring-left"] { border-bottom: 3px solid #f97316; }
+        .key[data-finger="middle-left"] { border-bottom: 3px solid #eab308; }
+        .key[data-finger="index-left"] { border-bottom: 3px solid #10b981; }
+        .key[data-finger="thumb-left"] { border-bottom: 3px solid #06b6d4; }
+        .key[data-finger="index-right"] { border-bottom: 3px solid #10b981; }
+        .key[data-finger="middle-right"] { border-bottom: 3px solid #eab308; }
+        .key[data-finger="ring-right"] { border-bottom: 3px solid #f97316; }
+        .key[data-finger="pinky-right"] { border-bottom: 3px solid #ef4444; }
+        .key[data-finger="thumb-right"] { border-bottom: 3px solid #06b6d4; }
+
+        .key.active[data-finger="pinky-left"], .key.active[data-finger="pinky-right"] { background: #ef4444; }
+        .key.active[data-finger="ring-left"], .key.active[data-finger="ring-right"] { background: #f97316; }
+        .key.active[data-finger="middle-left"], .key.active[data-finger="middle-right"] { background: #eab308; }
+        .key.active[data-finger="index-left"], .key.active[data-finger="index-right"] { background: #10b981; }
+        .key.active[data-finger="thumb-left"], .key.active[data-finger="thumb-right"] { background: #06b6d4; }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+            font-size: 0.85rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
         .btn {
             padding: 12px 30px;
             background: var(--primary);
@@ -527,6 +640,66 @@
                 <div id="typingArea" class="typing-area" onclick="focusInput()"></div>
                 <input type="text" id="hiddenInput" class="hidden-input" autocomplete="off">
 
+                <!-- Finger Guide Section -->
+                <div class="finger-hint" id="fingerHint">
+                    Use finger: <span id="currentFingerName">Left Pinky</span>
+                </div>
+
+                <div class="finger-guide">
+                    <!-- Left Hand -->
+                    <div class="hand-container">
+                        <div class="hand-label">Left Hand</div>
+                        <svg class="hand-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Left hand outline -->
+                            <g id="leftHand">
+                                <!-- Pinky -->
+                                <path class="finger finger-left-pinky" id="leftPinky" d="M20,120 L20,180 L40,180 L40,120 Z"/>
+                                <!-- Ring -->
+                                <path class="finger finger-left-ring" id="leftRing" d="M45,110 L45,180 L65,180 L65,110 Z"/>
+                                <!-- Middle -->
+                                <path class="finger finger-left-middle" id="leftMiddle" d="M70,100 L70,180 L90,180 L90,100 Z"/>
+                                <!-- Index -->
+                                <path class="finger finger-left-index" id="leftIndex" d="M95,105 L95,180 L115,180 L115,105 Z"/>
+                                <!-- Thumb -->
+                                <path class="finger finger-left-thumb" id="leftThumb" d="M120,140 L120,180 L145,180 L145,140 Z"/>
+                                <!-- Palm -->
+                                <ellipse cx="80" cy="190" rx="50" ry="20" fill="#475569"/>
+                            </g>
+                        </svg>
+                    </div>
+                    
+                    <!-- Right Hand -->
+                    <div class="hand-container">
+                        <div class="hand-label">Right Hand</div>
+                        <svg class="hand-svg" viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Right hand outline -->
+                            <g id="rightHand">
+                                <!-- Thumb -->
+                                <path class="finger finger-right-thumb" id="rightThumb" d="M55,140 L55,180 L80,180 L80,140 Z"/>
+                                <!-- Index -->
+                                <path class="finger finger-right-index" id="rightIndex" d="M85,105 L85,180 L105,180 L105,105 Z"/>
+                                <!-- Middle -->
+                                <path class="finger finger-right-middle" id="rightMiddle" d="M110,100 L110,180 L130,180 L130,100 Z"/>
+                                <!-- Ring -->
+                                <path class="finger finger-right-ring" id="rightRing" d="M135,110 L135,180 L155,180 L155,110 Z"/>
+                                <!-- Pinky -->
+                                <path class="finger finger-right-pinky" id="rightPinky" d="M160,120 L160,180 L180,180 L180,120 Z"/>
+                                <!-- Palm -->
+                                <ellipse cx="120" cy="190" rx="50" ry="20" fill="#475569"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Legend -->
+                <div class="legend">
+                    <div class="legend-item"><div class="legend-color" style="background:#ef4444;"></div><span>Pinky</span></div>
+                    <div class="legend-item"><div class="legend-color" style="background:#f97316;"></div><span>Ring</span></div>
+                    <div class="legend-item"><div class="legend-color" style="background:#eab308;"></div><span>Middle</span></div>
+                    <div class="legend-item"><div class="legend-color" style="background:#10b981;"></div><span>Index</span></div>
+                    <div class="legend-item"><div class="legend-color" style="background:#06b6d4;"></div><span>Thumb</span></div>
+                </div>
+
                 <div class="keyboard" id="keyboard"></div>
             </div>
         </div>
@@ -729,6 +902,25 @@
 
         function createKeyboard() {
             const keyboard = document.getElementById('keyboard');
+            // Finger mapping for touch typing (standard home row position)
+            const fingerMapping = {
+                // Left hand
+                'q': 'pinky-left', 'a': 'pinky-left', 'z': 'pinky-left', '1': 'pinky-left',
+                'w': 'ring-left', 's': 'ring-left', 'x': 'ring-left', '2': 'ring-left',
+                'e': 'middle-left', 'd': 'middle-left', 'c': 'middle-left', '3': 'middle-left',
+                'r': 'index-left', 'f': 'index-left', 'v': 'index-left', '4': 'index-left',
+                't': 'index-left', 'g': 'index-left', 'b': 'index-left', '5': 'index-left',
+                'y': 'index-left', 'h': 'index-left', 'n': 'index-left', '6': 'index-left',
+                // Space bar (thumbs)
+                ' ': 'thumb-left',
+                // Right hand
+                'u': 'index-right', 'j': 'index-right', 'm': 'index-right', '7': 'index-right',
+                'i': 'index-right', 'k': 'index-right', ',': 'index-right', '8': 'index-right',
+                'o': 'middle-right', 'l': 'middle-right', '.': 'middle-right', '9': 'middle-right',
+                'p': 'ring-right', ';': 'ring-right', '/': 'ring-right', '0': 'ring-right',
+                '[': 'pinky-right', ']': 'pinky-right', '\'': 'pinky-right', '-': 'pinky-right', '=': 'pinky-right'
+            };
+
             const rows = [
                 ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
                 ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';'],
@@ -737,9 +929,74 @@
 
             keyboard.innerHTML = rows.map(row => 
                 `<div class="keyboard-row">
-                    ${row.map(key => `<div class="key" data-key="${key}">${key}</div>`).join('')}
+                    ${row.map(key => `<div class="key" data-key="${key}" data-finger="${fingerMapping[key] || ''}">${key}</div>`).join('')}
                 </div>`
             ).join('');
+        }
+
+        // Finger animation and hint update
+        function highlightFinger(char) {
+            const fingerMapping = {
+                'q': 'leftPinky', 'a': 'leftPinky', 'z': 'leftPinky',
+                'w': 'leftRing', 's': 'leftRing', 'x': 'leftRing',
+                'e': 'leftMiddle', 'd': 'leftMiddle', 'c': 'leftMiddle',
+                'r': 'leftIndex', 'f': 'leftIndex', 'v': 'leftIndex', 't': 'leftIndex', 'g': 'leftIndex', 'b': 'leftIndex',
+                'y': 'leftIndex', 'h': 'leftIndex', 'n': 'leftIndex',
+                'u': 'rightIndex', 'j': 'rightIndex', 'm': 'rightIndex',
+                'i': 'rightIndex', 'k': 'rightIndex', ',': 'rightIndex',
+                'o': 'rightMiddle', 'l': 'rightMiddle', '.': 'rightMiddle',
+                'p': 'rightRing', ';': 'rightRing', '/': 'rightRing',
+                ' ': 'leftThumb'
+            };
+
+            const fingerNames = {
+                'leftPinky': 'Left Pinky', 'leftRing': 'Left Ring', 'leftMiddle': 'Left Middle',
+                'leftIndex': 'Left Index', 'leftThumb': 'Left Thumb',
+                'rightIndex': 'Right Index', 'rightMiddle': 'Right Middle',
+                'rightRing': 'Right Ring', 'rightPinky': 'Right Pinky', 'rightThumb': 'Right Thumb'
+            };
+
+            // Remove active class from all fingers
+            document.querySelectorAll('.finger').forEach(f => f.classList.remove('active'));
+            document.querySelectorAll('.key').forEach(k => k.classList.remove('active'));
+
+            const charLower = char.toLowerCase();
+            let fingerId = null;
+            
+            // Determine which finger to use
+            if (fingerMapping[charLower]) {
+                fingerId = fingerMapping[charLower];
+            } else if ('uikm78'.includes(charLower)) {
+                fingerId = 'rightIndex';
+            } else if ('ol.9'.includes(charLower)) {
+                fingerId = 'rightMiddle';
+            } else if ('p;/0'.includes(charLower)) {
+                fingerId = 'rightRing';
+            } else if ('[]\'-='.includes(charLower)) {
+                fingerId = 'rightPinky';
+            }
+
+            if (fingerId) {
+                // Highlight the finger on the hand SVG
+                const fingerElement = document.getElementById(fingerId);
+                if (fingerElement) {
+                    fingerElement.classList.add('active');
+                    setTimeout(() => fingerElement.classList.remove('active'), 200);
+                }
+
+                // Update the finger hint text
+                const fingerNameElement = document.getElementById('currentFingerName');
+                if (fingerNameElement && fingerNames[fingerId]) {
+                    fingerNameElement.textContent = fingerNames[fingerId];
+                }
+
+                // Also highlight the corresponding key on the keyboard
+                const keyElement = document.querySelector(`[data-key="${charLower}"]`);
+                if (keyElement) {
+                    keyElement.classList.add('active');
+                    setTimeout(() => keyElement.classList.remove('active'), 200);
+                }
+            }
         }
 
         function highlightKey(char) {
@@ -748,6 +1005,8 @@
                 keyElement.classList.add('active');
                 setTimeout(() => keyElement.classList.remove('active'), 150);
             }
+            // Also highlight the finger
+            highlightFinger(char);
         }
 
         function focusInput() {

@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypeMaster - Learn Typing Offline</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            color: #667eea;
+            text-align: center;
+            font-size: 2rem;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        nav button {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            background: #667eea;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        nav button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        nav button.active {
+            background: #764ba2;
+        }
+
+        main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .section {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Home Section */
+        .welcome {
+            text-align: center;
+        }
+
+        .welcome h2 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        /* Lesson Section */
+        .lesson-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+        }
+
+        .lesson-list {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .lesson-item {
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .lesson-item:hover {
+            background: #e9ecef;
+        }
+
+        .lesson-item.active {
+            border-left-color: #667eea;
+            background: #e7f3ff;
+        }
+
+        .lesson-item.completed {
+            border-left-color: #28a745;
+        }
+
+        .typing-area {
+            text-align: center;
+        }
+
+        .text-display {
+            font-size: 1.5rem;
+            line-height: 2;
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: left;
+            font-family: 'Courier New', monospace;
+        }
+
+        .char {
+            padding: 2px 1px;
+            border-radius: 3px;
+        }
+
+        .char.correct {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .char.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .char.current {
+            background: #fff3cd;
+            border-bottom: 3px solid #ffc107;
+        }
+
+        .char.pending {
+            color: #6c757d;
+        }
+
+        #input-field {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.2rem;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            outline: none;
+        }
+
+        #input-field:focus {
+            border-color: #764ba2;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Stats Section */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Virtual Keyboard */
+        .keyboard {
+            margin-top: 2rem;
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            margin: 0.25rem 0;
+        }
+
+        .key {
+            width: 50px;
+            height: 50px;
+            margin: 0.25rem;
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .key.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: scale(1.1);
+        }
+
+        .key.highlight {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+
+        .key.wide {
+            width: 80px;
+        }
+
+        .key.extra-wide {
+            width: 100px;
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-top: 1rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 0.5rem;
+            color: #6c757d;
+        }
+
+        /* Results Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal h2 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .result-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .result-stat {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+        }
+
+        .result-value {
+            font-size: 2rem;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .result-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .lesson-container {
+                grid-template-columns: 1fr;
+            }
+
+            .key {
+                width: 35px;
+                height: 40px;
+                font-size: 0.8rem;
+            }
+
+            .key.wide {
+                width: 55px;
+            }
+
+            .key.extra-wide {
+                width: 70px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>⌨️ TypeMaster</h1>
+        <nav>
+            <button class="nav-btn active" data-section="home">Home</button>
+            <button class="nav-btn" data-section="lessons">Lessons</button>
+            <button class="nav-btn" data-section="practice">Practice</button>
+            <button class="nav-btn" data-section="stats">Statistics</button>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Home Section -->
+        <section id="home" class="section active">
+            <div class="welcome">
+                <h2>Welcome to TypeMaster!</h2>
+                <p>Your complete offline typing tutor. Learn to type faster and more accurately without needing an internet connection.</p>
+                
+                <div class="features">
+                    <div class="feature-card">
+                        <h3>📚 Structured Lessons</h3>
+                        <p>Progressive lessons from beginner to advanced</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>⚡ Real-time Feedback</h3>
+                        <p>Instant correction and highlighting</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>📊 Track Progress</h3>
+                        <p>Monitor your WPM and accuracy improvements</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>🎯 Virtual Keyboard</h3>
+                        <p>Learn proper finger placement</p>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="showSection('lessons')">Start Learning</button>
+                    <button class="btn btn-secondary" onclick="showSection('practice')">Free Practice</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lessons Section -->
+        <section id="lessons" class="section">
+            <h2>Typing Lessons</h2>
+            <div class="lesson-container">
+                <div class="lesson-list" id="lesson-list"></div>
+                <div class="typing-area">
+                    <div class="text-display" id="text-display"></div>
+                    <input type="text" id="input-field" placeholder="Start typing here..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                    
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-text" id="progress-text">0% Complete</div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" onclick="resetLesson()">Reset</button>
+                        <button class="btn btn-primary" onclick="skipLesson()">Skip</button>
+                    </div>
+
+                    <div class="keyboard" id="keyboard"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Practice Section -->
+        <section id="practice" class="section">
+            <h2>Free Practice</h2>
+            <div class="typing-area">
+                <div class="text-display" id="practice-text"></div>
+                <input type="text" id="practice-input" placeholder="Start typing..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                
+                <div class="stats-grid" style="margin-top: 1rem;">
+                    <div class="stat-card">
+                        <div class="stat-value" id="practice-wpm">0</div>
+                        <div class="stat-label">WPM</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="practice-accuracy">100%</div>
+                        <div class="stat-label">Accuracy</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="practice-errors">0</div>
+                        <div class="stat-label">Errors</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="practice-time">0s</div>
+                        <div class="stat-label">Time</div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="newPracticeText()">New Text</button>
+                    <button class="btn btn-secondary" onclick="resetPractice()">Reset</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Statistics Section -->
+        <section id="stats" class="section">
+            <h2>Your Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="total-lessons">0</div>
+                    <div class="stat-label">Lessons Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="best-wpm">0</div>
+                    <div class="stat-label">Best WPM</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avg-accuracy">0%</div>
+                    <div class="stat-label">Average Accuracy</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="total-time">0m</div>
+                    <div class="stat-label">Total Practice Time</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem;">
+                <h3>Lesson Progress</h3>
+                <div id="lesson-progress" style="margin-top: 1rem;"></div>
+            </div>
+
+            <div class="btn-group" style="margin-top: 2rem;">
+                <button class="btn btn-secondary" onclick="resetStats()">Reset Statistics</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Results Modal -->
+    <div class="modal" id="results-modal">
+        <div class="modal-content">
+            <h2>🎉 Lesson Complete!</h2>
+            <div class="result-stats">
+                <div class="result-stat">
+                    <div class="result-value" id="result-wpm">0</div>
+                    <div class="result-label">WPM</div>
+                </div>
+                <div class="result-stat">
+                    <div class="result-value" id="result-accuracy">0%</div>
+                    <div class="result-label">Accuracy</div>
+                </div>
+                <div class="result-stat">
+                    <div class="result-value" id="result-errors">0</div>
+                    <div class="result-label">Errors</div>
+                </div>
+                <div class="result-stat">
+                    <div class="result-value" id="result-time">0s</div>
+                    <div class="result-label">Time</div>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="nextLesson()">Next Lesson</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Lesson Data
+        const lessons = [
+            {
+                id: 1,
+                title: "Home Row - ASDF",
+                description: "Learn the home row starting with A, S, D, F",
+                text: "asdf asdf asdf fa da sa fa da sa asdf fa da sa asdf"
+            },
+            {
+                id: 2,
+                title: "Home Row - JKL;",
+                description: "Learn the home row with J, K, L, ;",
+                text: "jkl; jkl; jkl; lj kj jl kj lj jkl; lj kj jl jkl;"
+            },
+            {
+                id: 3,
+                title: "Full Home Row",
+                description: "Combine both hands on the home row",
+                text: "asdf jkl; asdf jkl; fajd kal; sadf jkla; asdf jkl; fajd kal;"
+            },
+            {
+                id: 4,
+                title: "Top Row - QWERTY",
+                description: "Add the top row letters",
+                text: "qwerty qwerty qwer tyui opas dfjk lqwe rtyu iopq wer"
+            },
+            {
+                id: 5,
+                title: "Top Row - UIOP",
+                description: "Practice the right side of top row",
+                text: "uiop uiop uio ppoi ioup loui poui uiop ploi kui oui"
+            },
+            {
+                id: 6,
+                title: "Bottom Row - ZXCV",
+                description: "Learn the bottom row left side",
+                text: "zxcv zxcv zx cvxz vcxz xzcv zxcv cxzv vczx xzc"
+            },
+            {
+                id: 7,
+                title: "Bottom Row - BNM,",
+                description: "Learn the bottom row right side",
+                text: "bnm, bnm, bnm ,mnb nmb ,mn bnm, mnb, n,m b,nm"
+            },
+            {
+                id: 8,
+                title: "All Rows Combined",
+                description: "Practice all rows together",
+                text: "the quick brown fox jumps over the lazy dog asdf jkl; qwerty uiop zxcv bnm"
+            },
+            {
+                id: 9,
+                title: "Common Words",
+                description: "Practice frequently used words",
+                text: "the and that have for not are but his they one all would there their what so up out if about who get which go me when make can like time no just him know take people into year your good some could them see other than then now look only come its over think also back after use two how our work first well way even new want because any these give day most us is"
+            },
+            {
+                id: 10,
+                title: "Sentences",
+                description: "Practice complete sentences",
+                text: "The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump! The five boxing wizards jump quickly. Sphinx of black quartz judge my vow."
+            }
+        ];
+
+        // Practice texts
+        const practiceTexts = [
+            "The quick brown fox jumps over the lazy dog.",
+            "Pack my box with five dozen liquor jugs.",
+            "How vexingly quick daft zebras jump!",
+            "The five boxing wizards jump quickly.",
+            "Sphinx of black quartz judge my vow.",
+            "Two driven jocks help fax my big quiz.",
+            "The jay pig fox ate my red hat.",
+            "Crazy Frederick bought many very exquisite opal jewels.",
+            "We promptly judged antique ivory buckles for the next prize.",
+            "A quick movement of the enemy will jeopardize six gunboats.",
+            "All questions asked by five marked experts amazed the judge.",
+            "My girl wove twelve silk pyjamas.",
+            "The job requires extra pluck and zeal from every young wage earner.",
+            "She saw a kitten sitting in the kitchen.",
+            "Programming is the art of telling another human what one wants the computer to do."
+        ];
+
+        // State variables
+        let currentLessonIndex = 0;
+        let currentText = "";
+        let currentIndex = 0;
+        let errors = 0;
+        let startTime = null;
+        let timerInterval = null;
+        let isPracticeMode = false;
+        let stats = JSON.parse(localStorage.getItem('typeMasterStats')) || {
+            completedLessons: [],
+            bestWPM: 0,
+            totalAccuracy: 0,
+            accuracyCount: 0,
+            totalTime: 0
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initNavigation();
+            initKeyboard();
+            loadLessonList();
+            updateStats();
+            
+            // Load saved progress
+            const savedIndex = localStorage.getItem('currentLessonIndex');
+            if (savedIndex) {
+                currentLessonIndex = parseInt(savedIndex);
+            }
+        });
+
+        // Navigation
+        function initNavigation() {
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    showSection(btn.dataset.section);
+                });
+            });
+        }
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(sectionId).classList.add('active');
+            document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+
+            if (sectionId === 'lessons') {
+                loadLesson(currentLessonIndex);
+            } else if (sectionId === 'practice') {
+                newPracticeText();
+            } else if (sectionId === 'stats') {
+                updateStats();
+            }
+        }
+
+        // Keyboard
+        function initKeyboard() {
+            const keyboardLayout = [
+                ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 'Backspace'],
+                ['Tab', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\\\\'],
+                ['Caps', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'", 'Enter'],
+                ['Shift', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 'Shift'],
+                ['Space']
+            ];
+
+            const keyboard = document.getElementById('keyboard');
+            keyboard.innerHTML = '';
+
+            keyboardLayout.forEach(row => {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'keyboard-row';
+                
+                row.forEach(key => {
+                    const keyDiv = document.createElement('div');
+                    keyDiv.className = 'key';
+                    keyDiv.textContent = key === ' ' ? 'Space' : key;
+                    keyDiv.dataset.key = key.toLowerCase();
+                    
+                    if (key === 'Backspace' || key === 'Tab' || key === 'Caps' || key === 'Enter' || key === 'Shift') {
+                        keyDiv.classList.add('wide');
+                    }
+                    if (key === 'Space') {
+                        keyDiv.classList.add('extra-wide');
+                        keyDiv.style.width = '300px';
+                    }
+                    
+                    rowDiv.appendChild(keyDiv);
+                });
+                
+                keyboard.appendChild(rowDiv);
+            });
+        }
+
+        function highlightKey(char) {
+            document.querySelectorAll('.key').forEach(k => k.classList.remove('highlight'));
+            const key = document.querySelector(`[data-key="${char.toLowerCase()}"]`);
+            if (key) key.classList.add('highlight');
+        }
+
+        // Lessons
+        function loadLessonList() {
+            const list = document.getElementById('lesson-list');
+            list.innerHTML = '';
+
+            lessons.forEach((lesson, index) => {
+                const item = document.createElement('div');
+                item.className = 'lesson-item';
+                if (index === currentLessonIndex) item.classList.add('active');
+                if (stats.completedLessons.includes(lesson.id)) item.classList.add('completed');
+                
+                item.innerHTML = `
+                    <strong>${lesson.title}</strong>
+                    <div style="font-size: 0.8rem; color: #6c757d;">${lesson.description}</div>
+                    ${stats.completedLessons.includes(lesson.id) ? '<span style="color: #28a745;">✓ Completed</span>' : ''}
+                `;
+                
+                item.addEventListener('click', () => {
+                    currentLessonIndex = index;
+                    localStorage.setItem('currentLessonIndex', index);
+                    loadLesson(index);
+                    loadLessonList();
+                });
+                
+                list.appendChild(item);
+            });
+        }
+
+        function loadLesson(index) {
+            const lesson = lessons[index];
+            currentText = lesson.text;
+            currentIndex = 0;
+            errors = 0;
+            startTime = null;
+            isPracticeMode = false;
+            
+            document.getElementById('input-field').value = '';
+            document.getElementById('input-field').disabled = false;
+            document.getElementById('input-field').focus();
+            
+            renderText();
+            updateProgress();
+        }
+
+        function renderText() {
+            const display = document.getElementById('text-display');
+            display.innerHTML = '';
+
+            currentText.split('').forEach((char, index) => {
+                const span = document.createElement('span');
+                span.className = 'char';
+                span.textContent = char === ' ' ? '␣' : char;
+                
+                if (index < currentIndex) {
+                    const inputChar = document.getElementById('input-field').value[index];
+                    span.classList.add(inputChar === char ? 'correct' : 'incorrect');
+                } else if (index === currentIndex) {
+                    span.classList.add('current');
+                } else {
+                    span.classList.add('pending');
+                }
+                
+                display.appendChild(span);
+            });
+
+            if (currentIndex < currentText.length) {
+                highlightKey(currentText[currentIndex]);
+            }
+        }
+
+        function updateProgress() {
+            const progress = (currentIndex / currentText.length) * 100;
+            document.getElementById('progress-fill').style.width = `${progress}%`;
+            document.getElementById('progress-text').textContent = `${Math.round(progress)}% Complete`;
+        }
+
+        // Input handling for lessons
+        document.getElementById('input-field').addEventListener('input', (e) => {
+            if (!isPracticeMode && !startTime) {
+                startTime = new Date();
+            }
+
+            const value = e.target.value;
+            currentIndex = value.length;
+            
+            renderText();
+            updateProgress();
+
+            // Check if lesson is complete
+            if (currentIndex >= currentText.length) {
+                completeLesson();
+            }
+        });
+
+        function completeLesson() {
+            if (timerInterval) clearInterval(timerInterval);
+            
+            document.getElementById('input-field').disabled = true;
+            
+            const endTime = new Date();
+            const timeTaken = (endTime - startTime) / 1000;
+            const minutes = timeTaken / 60;
+            const words = currentText.length / 5;
+            const wpm = Math.round(words / minutes);
+            const accuracy = Math.round(((currentText.length - errors) / currentText.length) * 100);
+
+            // Update stats
+            if (!stats.completedLessons.includes(lessons[currentLessonIndex].id)) {
+                stats.completedLessons.push(lessons[currentLessonIndex].id);
+            }
+            if (wpm > stats.bestWPM) stats.bestWPM = wpm;
+            stats.totalAccuracy += accuracy;
+            stats.accuracyCount++;
+            stats.totalTime += timeTaken;
+            
+            saveStats();
+
+            // Show results
+            document.getElementById('result-wpm').textContent = wpm;
+            document.getElementById('result-accuracy').textContent = `${accuracy}%`;
+            document.getElementById('result-errors').textContent = errors;
+            document.getElementById('result-time').textContent = `${Math.round(timeTaken)}s`;
+            
+            document.getElementById('results-modal').classList.add('active');
+        }
+
+        function resetLesson() {
+            loadLesson(currentLessonIndex);
+        }
+
+        function skipLesson() {
+            if (currentLessonIndex < lessons.length - 1) {
+                currentLessonIndex++;
+                localStorage.setItem('currentLessonIndex', currentLessonIndex);
+                loadLesson(currentLessonIndex);
+                loadLessonList();
+            }
+        }
+
+        function nextLesson() {
+            closeModal();
+            if (currentLessonIndex < lessons.length - 1) {
+                currentLessonIndex++;
+                localStorage.setItem('currentLessonIndex', currentLessonIndex);
+                loadLesson(currentLessonIndex);
+                loadLessonList();
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('results-modal').classList.remove('active');
+        }
+
+        // Practice Mode
+        function newPracticeText() {
+            currentText = practiceTexts[Math.floor(Math.random() * practiceTexts.length)];
+            currentIndex = 0;
+            errors = 0;
+            startTime = null;
+            isPracticeMode = true;
+            
+            document.getElementById('practice-input').value = '';
+            document.getElementById('practice-input').disabled = false;
+            document.getElementById('practice-input').focus();
+            
+            document.getElementById('practice-wpm').textContent = '0';
+            document.getElementById('practice-accuracy').textContent = '100%';
+            document.getElementById('practice-errors').textContent = '0';
+            document.getElementById('practice-time').textContent = '0s';
+            
+            renderPracticeText();
+            
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(updatePracticeStats, 1000);
+        }
+
+        function renderPracticeText() {
+            const display = document.getElementById('practice-text');
+            display.innerHTML = '';
+
+            currentText.split('').forEach((char, index) => {
+                const span = document.createElement('span');
+                span.className = 'char';
+                span.textContent = char === ' ' ? '␣' : char;
+                
+                if (index < currentIndex) {
+                    const inputChar = document.getElementById('practice-input').value[index];
+                    span.classList.add(inputChar === char ? 'correct' : 'incorrect');
+                } else if (index === currentIndex) {
+                    span.classList.add('current');
+                } else {
+                    span.classList.add('pending');
+                }
+                
+                display.appendChild(span);
+            });
+        }
+
+        document.getElementById('practice-input').addEventListener('input', (e) => {
+            if (!startTime) startTime = new Date();
+
+            const value = e.target.value;
+            currentIndex = value.length;
+            
+            // Count errors
+            for (let i = 0; i < value.length; i++) {
+                if (value[i] !== currentText[i]) {
+                    errors = Math.max(errors, i + 1);
+                }
+            }
+            
+            renderPracticeText();
+            updatePracticeStats();
+
+            if (currentIndex >= currentText.length) {
+                clearInterval(timerInterval);
+                document.getElementById('practice-input').disabled = true;
+            }
+        });
+
+        function updatePracticeStats() {
+            if (!startTime) return;
+
+            const elapsed = (new Date() - startTime) / 1000;
+            const minutes = elapsed / 60;
+            const words = currentIndex / 5;
+            const wpm = minutes > 0 ? Math.round(words / minutes) : 0;
+            const actualErrors = Array.from(document.getElementById('practice-input').value).filter((c, i) => c !== currentText[i]).length;
+            const accuracy = currentIndex > 0 ? Math.round(((currentIndex - actualErrors) / currentIndex) * 100) : 100;
+
+            document.getElementById('practice-wpm').textContent = wpm;
+            document.getElementById('practice-accuracy').textContent = `${accuracy}%`;
+            document.getElementById('practice-errors').textContent = actualErrors;
+            document.getElementById('practice-time').textContent = `${Math.round(elapsed)}s`;
+        }
+
+        function resetPractice() {
+            newPracticeText();
+        }
+
+        // Statistics
+        function updateStats() {
+            document.getElementById('total-lessons').textContent = stats.completedLessons.length;
+            document.getElementById('best-wpm').textContent = stats.bestWPM;
+            document.getElementById('avg-accuracy').textContent = stats.accuracyCount > 0 
+                ? `${Math.round(stats.totalAccuracy / stats.accuracyCount)}%` 
+                : '0%';
+            document.getElementById('total-time').textContent = `${Math.round(stats.totalTime / 60)}m`;
+
+            const progressDiv = document.getElementById('lesson-progress');
+            progressDiv.innerHTML = '';
+            
+            lessons.forEach(lesson => {
+                const completed = stats.completedLessons.includes(lesson.id);
+                const div = document.createElement('div');
+                div.style.cssText = `
+                    padding: 0.5rem;
+                    margin: 0.25rem 0;
+                    background: ${completed ? '#d4edda' : '#f8f9fa'};
+                    border-radius: 5px;
+                    display: flex;
+                    justify-content: space-between;
+                `;
+                div.innerHTML = `
+                    <span>${lesson.title}</span>
+                    <span>${completed ? '✓' : '○'}</span>
+                `;
+                progressDiv.appendChild(div);
+            });
+        }
+
+        function resetStats() {
+            if (confirm('Are you sure you want to reset all statistics?')) {
+                stats = {
+                    completedLessons: [],
+                    bestWPM: 0,
+                    totalAccuracy: 0,
+                    accuracyCount: 0,
+                    totalTime: 0
+                };
+                saveStats();
+                updateStats();
+                loadLessonList();
+            }
+        }
+
+        function saveStats() {
+            localStorage.setItem('typeMasterStats', JSON.stringify(stats));
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "users": [
+    {
+      "id": "testuser",
+      "createdAt": "2026-04-15T16:01:37.723Z",
+      "progress": [
+        {
+          "lessonId": 1,
+          "wpm": 45,
+          "accuracy": 95,
+          "errors": 2,
+          "timestamp": "2026-04-15T16:01:37.723Z"
+        }
+      ],
+      "stats": {
+        "totalLessons": 1,
+        "bestWpm": 45,
+        "averageAccuracy": 95,
+        "totalTime": 60
+      }
+    }
+  ]
+}

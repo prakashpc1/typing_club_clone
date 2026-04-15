@@ -35,21 +35,38 @@ function writeUsers(data) {
 
 // API Routes
 
-// Get all lessons
-app.get('/api/lessons', (req, res) => {
-    const lessons = [
-        { id: 1, title: "Home Row - ASDF", description: "Learn the home row keys starting with A, S, D, F", content: "asdf asdf asdf fdsa fdsa fdsa asdf fdsa" },
-        { id: 2, title: "Home Row - JKL;", description: "Learn the home row keys J, K, L, ;", content: "jkl; jkl; jkl; ;lkj ;lkj ;lkj jkl; ;lkj" },
-        { id: 3, title: "Home Row Combined", description: "Combine all home row keys", content: "asdf jkl; asdf jkl; fdsa ;lkj asdf jkl; fdsa ;lkj" },
-        { id: 4, title: "Top Row - QWERT", description: "Learn the top row keys Q, W, E, R, T", content: "qwert qwert qwert trewq trewq trewq qwert trewq" },
-        { id: 5, title: "Top Row - YUIOP", description: "Learn the top row keys Y, U, I, O, P", content: "yuiop yuiop yuiop poiuy poiuy poiuy yuiop poiuy" },
-        { id: 6, title: "Bottom Row - ZXCVB", description: "Learn the bottom row keys Z, X, C, V, B", content: "zxcvb zxcvb zxcvb bvcxz bvcxz bvcxz zxcvb bvcxz" },
-        { id: 7, title: "Bottom Row - NM,./", description: "Learn the bottom row keys N, M, ,, ., /", content: "nm,./ nm,./ nm,./ ./,mn ./,mn ./,mn nm,./ ./,mn" },
-        { id: 8, title: "Common Words", description: "Practice common English words", content: "the and that have for not are but his they this will one has their also from had first been would could year there each its when new how then than her two more these want go see come use find give make many back well need mean old right take only into which year people time day man thing woman life child world school state family program work government company number group problem fact" },
-        { id: 9, title: "Sentences Level 1", description: "Simple sentences practice", content: "The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump! The five boxing wizards jump quickly." },
-        { id: 10, title: "Advanced Practice", description: "Complex sentences and punctuation", content: "Programming is the art of telling another human what one wants the computer to do. Success is not final, failure is not fatal: it is the courage to continue that counts. In the middle of difficulty lies opportunity. Life is what happens when you're busy making other plans." }
+// Get all levels (replacing lessons with levels system)
+app.get('/api/levels', (req, res) => {
+    const levels = [
+        { id: 1, name: "Home Row Foundation", desc: "Master ASDF JKL;", keys: "asdf jkl;", text: "asdf jkl; fads sjl; daf jkl; ask dfj;" },
+        { id: 2, name: "Home Row Flow", desc: "Smooth transitions on home row", keys: "asdf jkl;", text: "dad has a sad lad; flask asks; all dads fall;" },
+        { id: 3, name: "Top Row Reach", desc: "Introducing E and I", keys: "e i", text: "fee see; die lie; ease idle; feel ill;" },
+        { id: 4, name: "Top Row Expansion", desc: "Adding R and U", keys: "r u", text: "rare user; rude rear; rise up; real use;" },
+        { id: 5, name: "Top Row Mastery", desc: "Q, W, O, P added", keys: "q w o p", text: "we go; pop up; own power; quiet row;" },
+        { id: 6, name: "Bottom Row Basics", desc: "Introducing C and M", keys: "c m", text: "cam mac; calm man; come back; mom can;" },
+        { id: 7, name: "Bottom Row Flow", desc: "V, B, N added", keys: "v b n", text: "van ban; never even; big van; men run;" },
+        { id: 8, name: "Full Keyboard Basic", desc: "X, Z, and punctuation", keys: "x z . ,", text: "zoo fix; buzz zoom; no x-ray; size zero." },
+        { id: 9, name: "Common Words", desc: "Frequent English words", keys: "all", text: "the quick brown fox jumps over the lazy dog." },
+        { id: 10, name: "Speed Challenge", desc: "Complex sentences", keys: "all", text: "Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump!" }
     ];
-    res.json(lessons);
+    res.json(levels);
+});
+
+// Backward compatibility - redirect lessons to levels
+app.get('/api/lessons', (req, res) => {
+    const levels = [
+        { id: 1, title: "Home Row Foundation", description: "Master ASDF JKL;", content: "asdf jkl; fads sjl; daf jkl; ask dfj;" },
+        { id: 2, title: "Home Row Flow", description: "Smooth transitions on home row", content: "dad has a sad lad; flask asks; all dads fall;" },
+        { id: 3, title: "Top Row Reach", description: "Introducing E and I", content: "fee see; die lie; ease idle; feel ill;" },
+        { id: 4, title: "Top Row Expansion", description: "Adding R and U", content: "rare user; rude rear; rise up; real use;" },
+        { id: 5, title: "Top Row Mastery", description: "Q, W, O, P added", content: "we go; pop up; own power; quiet row;" },
+        { id: 6, title: "Bottom Row Basics", description: "Introducing C and M", content: "cam mac; calm man; come back; mom can;" },
+        { id: 7, title: "Bottom Row Flow", description: "V, B, N added", content: "van ban; never even; big van; men run;" },
+        { id: 8, title: "Full Keyboard Basic", description: "X, Z, and punctuation", content: "zoo fix; buzz zoom; no x-ray; size zero." },
+        { id: 9, title: "Common Words", description: "Frequent English words", content: "the quick brown fox jumps over the lazy dog." },
+        { id: 10, title: "Speed Challenge", description: "Complex sentences", content: "Pack my box with five dozen liquor jugs. How vexingly quick daft zebras jump!" }
+    ];
+    res.json(levels);
 });
 
 // Create or update user progress
